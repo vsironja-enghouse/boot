@@ -838,7 +838,7 @@
               :take     @(.take q)
               :refresh  (do (swap) (take)))))))
 
-(defn- init-pod!
+(defn- init-pod-original!
   [env pod]
   (doto pod
     (require-in "boot.pod")
@@ -851,6 +851,28 @@
       (dosync (alter @#'clojure.core/*loaded-libs* conj 'pod))
       (alter-var-root #'*ns* (constantly (the-ns 'pod)))
       (clojure.core/refer-clojure))))
+
+(println "== With fix https://github.com/boot-clj/boot/issues/733")
+
+(defn- init-pod!
+  [env pod]
+  ;; This was added
+  (println "== Using fix https://github.com/boot-clj/boot/issues/733")
+  (let [temp-file (doto (java.io.File/createTempFile "env" ".edn") (.deleteOnExit))]
+    ;; This was added
+    (spit temp-file env)
+    (doto pod
+      (require-in "boot.pod")
+      (with-invoke-in (boot.pod/set-worker-pod! worker-pod))
+      (with-eval-in
+        (require 'boot.util 'boot.pod)
+        (reset! boot.util/*verbosity* ~(deref util/*verbosity*))
+        ;; This was changed
+        (alter-var-root #'boot.pod/env (constantly (slurp ~(.getPath temp-file))))
+        (create-ns 'pod)
+        (dosync (alter @#'clojure.core/*loaded-libs* conj 'pod))
+        (alter-var-root #'*ns* (constantly (the-ns 'pod)))
+        (clojure.core/refer-clojure)))))
 
 (defn default-dependencies
   "Adds default dependencies given by deps to the :dependencies in env, but
