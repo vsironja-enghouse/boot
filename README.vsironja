@@ -1,0 +1,5 @@
+This is a branch off from 2.7.2 tag.
+It incorporates an adhoc-fix as seen in https://github.com/boot-clj/boot/issues/733
+Also changes have been made to build with
+- Maven 3.9.6
+- Java version: 21.0.2
