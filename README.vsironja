@@ -1,5 +1,19 @@
 This is a branch off from 2.7.2 tag.
+
 It incorporates an adhoc-fix as seen in https://github.com/boot-clj/boot/issues/733
 Also changes have been made to build with
 - Maven 3.9.6
 - Java version: 21.0.2
+
+The version has been renamed down to 2.7.1 because using 2.7.3 or 2.7.2-fix fails when boot (shim) tries to download a non-exiszting version.
+
+Build by
+- make deps
+- make install
+- make deploy (fails for me, not sure if needed)
+
+Make install should place everything into ~/.m2/repository/boot/*/2.7.1
+
+In ~/.boot/boot.properties or just in configurator/boot.properties set
+BOOT_VERSION=2.7.1
+
